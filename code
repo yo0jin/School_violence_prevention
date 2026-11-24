@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>POV: In Your DM - 장난이라는 이름의 폭력</title>
+  <!-- 가독성 좋은 웹폰트 (Pretendard & Gmarket Sans) -->
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <link href="https://webfontworld.github.io/gmarket/GmarketSans.css" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-main: #F8F7F4;
+      --bg-card: #FFFFFF;
+      --bg-soft: #F1EFEA;
+      --text-primary: #1E2024;
+      --text-secondary: #525866;
+      --text-muted: #8A919E;
+      --accent-primary: #2B3445;
+      --accent-hover: #1A202C;
+      --accent-point: #4F6EF7;
+      --accent-soft: #EEF2FF;
+      --bubble-other: #F2F3F7;
+      --bubble-me: #2B3445;
+      --border-light: #E6E4DD;
+      --danger: #E04F5F;
+      --success: #229A63;
+      --shadow-card: 0 12px 32px rgba(30, 32, 36, 0.06);
+      --shadow-float: 0 8px 24px rgba(30, 32, 36, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-weight: 400;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      font-size: 17px;
+      line-height: 1.65;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 520px;
+      background: var(--bg-card);
+      border-radius: 28px;
+      box-shadow: var(--shadow-card);
+      border: 1px solid var(--border-light);
+      overflow: hidden;
+      position: relative;
+      min-height: 680px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* 상단 진행 바 */
+    .top-bar {
+      padding: 18px 24px;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border-light);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .step-label {
+      font-size: 14px;
+      color: var(--text-secondary);
+      letter-spacing: 0.02em;
+    }
+
+    .progress-track {
+      flex: 1;
+      height: 6px;
+      background: var(--bg-soft);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--accent-primary);
+      border-radius: 999px;
+      transition: width 0.4s ease;
+    }
+
+    /* 화면 전환 */
+    .screen {
+      display: none;
+      padding: 32px 28px;
+      flex: 1;
+      flex-direction: column;
+      animation: fadeIn 0.35s ease;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-6px); }
+      40%, 80% { transform: translateX(6px); }
+    }
+
+    .shake {
+      animation: shake 0.35s ease;
+    }
+
+    /* 타이틀 스타일 */
+    .title-display {
+      font-family: 'GmarketSans', 'Pretendard', sans-serif;
+      font-weight: 500;
+      font-size: 32px;
+      line-height: 1.3;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle-display {
+      font-size: 20px;
+      color: var(--text-secondary);
+      margin-top: 8px;
+      line-height: 1.5;
+    }
+
+    /* 1. 시작 화면 */
+    .intro-hero {
+      margin-top: 28px;
+      margin-bottom: 36px;
+    }
+
+    .tutor-intro-card {
+      background: var(--bg-soft);
+      border-radius: 20px;
+      padding: 20px 22px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .tutor-emoji-badge {
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      background: #FFFFFF;
+      border: 1px solid var(--border-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    }
+
+    .tutor-intro-text {
+      font-size: 16px;
+      color: var(--text-secondary);
+      line-height: 1.55;
+    }
+
+    .input-group {
+      margin-bottom: 24px;
+    }
+
+    .input-label {
+      display: block;
+      font-size: 16px;
+      color: var(--text-primary);
+      margin-bottom: 10px;
+    }
+
+    .text-input {
+      width: 100%;
+      padding: 16px 18px;
+      font-size: 18px;
+      border: 1.5px solid var(--border-light);
+      border-radius: 16px;
+      background: #FFFFFF;
+      color: var(--text-primary);
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    .text-input:focus {
+      border-color: var(--accent-primary);
+    }
+
+    .error-msg {
+      color: var(--danger);
+      font-size: 15px;
+      margin-top: 8px;
+      min-height: 22px;
+    }
+
+    /* 버튼 공통 */
+    .btn-primary {
+      width: 100%;
+      padding: 18px 24px;
+      font-size: 18px;
+      background: var(--accent-primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.1s ease;
+      margin-top: auto;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+    }
+
+    .btn-primary:active {
+      transform: scale(0.99);
+    }
+
+    .btn-secondary {
+      width: 100%;
+      padding: 15px 20px;
+      font-size: 16px;
+      background: var(--bg-soft);
+      color: var(--text-primary);
+      border: 1px solid var(--border-light);
+      border-radius: 14px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .btn-secondary:hover {
+      background: #E8E5DE;
+    }
+
+    /* 2. SCENARIO 화면 */
+    .scenario-badge {
+      display: inline-block;
+      padding: 6px 14px;
+      background: var(--accent-soft);
+      color: var(--accent-point);
+      border-radius: 999px;
+      font-size: 14px;
+      letter-spacing: 0.08em;
+      margin-bottom: 16px;
+      align-self: flex-start;
+    }
+
+    .phone-notification {
+      background: var(--bg-soft);
+      border: 1px solid var(--border-light);
+      border-radius: 20px;
+      padding: 20px;
+      margin: 22px 0;
+    }
+
+    .noti-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .noti-body {
+      font-size: 17px;
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+
+    .scenario-desc {
+      font-size: 17px;
+      color: var(--text-secondary);
+      line-height: 1.75;
+      margin-bottom: 24px;
+    }
+
+    /* 3. DM 시뮬레이션 화면 */
+    .chat-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-light);
+      margin-bottom: 20px;
+    }
+
+    .chat-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: #E5E7EB;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: var(--text-secondary);
+    }
+
+    .chat-user-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-username {
+      font-size: 17px;
+      color: var(--text-primary);
+    }
+
+    .chat-status {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .chat-area {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .typing-indicator {
+      align-self: flex-start;
+      background: var(--bubble-other);
+      padding: 12px 18px;
+      border-radius: 18px 18px 18px 4px;
+      font-size: 15px;
+      color: var(--text-muted);
+      display: none;
+    }
+
+    .msg-wrapper {
+      display: flex;
+      flex-direction: column;
+      max-width: 88%;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .msg-wrapper.other {
+      align-self: flex-start;
+    }
+
+    .msg-wrapper.me {
+      align-self: flex-end;
+    }
+
+    .msg-bubble {
+      padding: 16px 20px;
+      font-size: 17px;
+      line-height: 1.6;
+      border-radius: 20px;
+    }
+
+    .msg-wrapper.other .msg-bubble {
+      background: var(--bubble-other);
+      color: var(--text-primary);
+      border-bottom-left-radius: 4px;
+    }
+
+    .msg-wrapper.me .msg-bubble {
+      background: var(--bubble-me);
+      color: #FFFFFF;
+      border-bottom-right-radius: 4px;
+    }
+
+    .translate-btn {
+      align-self: flex-start;
+      margin-top: 8px;
+      background: none;
+      border: 1px solid var(--border-light);
+      border-radius: 999px;
+      padding: 5px 12px;
+      font-size: 14px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .translate-btn:hover {
+      background: var(--bg-soft);
+    }
+
+    .translated-text {
+      display: none;
+      margin-top: 8px;
+      padding: 12px 16px;
+      background: #FAFAFA;
+      border-left: 3px solid var(--accent-point);
+      border-radius: 8px;
+      font-size: 16px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* 미션 선택 영역 */
+    .mission-box {
+      background: var(--bg-soft);
+      border-radius: 20px;
+      padding: 22px;
+      margin-top: auto;
+    }
+
+    .mission-title {
+      font-size: 17px;
+      color: var(--text-primary);
+      margin-bottom: 14px;
+      line-height: 1.55;
+    }
+
+    .option-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .option-btn {
+      width: 100%;
+      text-align: left;
+      padding: 15px 18px;
+      font-size: 16px;
+      line-height: 1.55;
+      background: #FFFFFF;
+      color: var(--text-primary);
+      border: 1.5px solid var(--border-light);
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .option-btn:hover {
+      border-color: var(--accent-primary);
+      background: #FCFCFB;
+    }
+
+    .option-btn.wrong {
+      border-color: var(--danger);
+      background: #FFF5F6;
+      color: var(--danger);
+    }
+
+    .option-btn.correct {
+      border-color: var(--success);
+      background: #F2FBF6;
+      color: var(--success);
+    }
+
+    .feedback-banner {
+      margin-top: 12px;
+      font-size: 15px;
+      min-height: 22px;
+      color: var(--danger);
+    }
+
+    .feedback-banner.success {
+      color: var(--success);
+    }
+
+    /* 4. 핵심 정리 퀴즈 화면 */
+    .quiz-badge {
+      display: inline-block;
+      padding: 5px 12px;
+      background: var(--bg-soft);
+      color: var(--text-secondary);
+      border-radius: 8px;
+      font-size: 14px;
+      margin-bottom: 14px;
+    }
+
+    .quiz-question {
+      font-size: 19px;
+      color: var(--text-primary);
+      line-height: 1.65;
+      margin-bottom: 20px;
+    }
+
+    .chosung-box {
+      background: var(--bg-soft);
+      border-radius: 16px;
+      padding: 20px;
+      text-align: center;
+      font-size: 26px;
+      letter-spacing: 0.18em;
+      color: var(--accent-point);
+      margin-bottom: 20px;
+    }
+
+    .ox-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .ox-btn {
+      padding: 24px;
+      font-size: 26px;
+      background: #FFFFFF;
+      border: 1.5px solid var(--border-light);
+      border-radius: 16px;
+      cursor: pointer;
+      color: var(--text-primary);
+      transition: all 0.2s;
+    }
+
+    .ox-btn:hover {
+      border-color: var(--accent-primary);
+    }
+
+    /* 5. 엔딩 & 소감 화면 */
+    .ending-card {
+      background: var(--bg-soft);
+      border-radius: 20px;
+      padding: 24px;
+      margin: 20px 0;
+    }
+
+    .ending-quote {
+      font-size: 19px;
+      color: var(--text-primary);
+      line-height: 1.6;
+      margin-bottom: 10px;
+    }
+
+    .ending-sub {
+      font-size: 16px;
+      color: var(--text-secondary);
+      line-height: 1.65;
+    }
+
+    textarea.reflection-input {
+      width: 100%;
+      min-height: 110px;
+      padding: 16px;
+      font-size: 16px;
+      line-height: 1.6;
+      border: 1.5px solid var(--border-light);
+      border-radius: 16px;
+      resize: vertical;
+      outline: none;
+      margin-bottom: 12px;
+    }
+
+    textarea.reflection-input:focus {
+      border-color: var(--accent-primary);
+    }
+
+    .btn-row {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    /* 우측 하단 토선생(🐰) 플로팅 튜터 */
+    .tutor-floating-wrap {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      display: none;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 12px;
+      z-index: 100;
+      max-width: 340px;
+    }
+
+    .tutor-bubble {
+      background: #FFFFFF;
+      border: 1px solid var(--border-light);
+      border-radius: 20px;
+      padding: 18px 20px;
+      box-shadow: var(--shadow-float);
+      font-size: 15px;
+      line-height: 1.65;
+      color: var(--text-primary);
+      position: relative;
+      display: block;
+    }
+
+    .tutor-bubble-header {
+      font-size: 14px;
+      color: var(--accent-point);
+      margin-bottom: 6px;
+    }
+
+    .tutor-toggle-btn {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: #FFFFFF;
+      border: 1.5px solid var(--border-light);
+      box-shadow: var(--shadow-float);
+      font-size: 30px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s ease;
+    }
+
+    .tutor-toggle-btn:hover {
+      transform: scale(1.06);
+    }
+
+    /* 모달: 참여자 소감 모아보기 */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(30, 32, 36, 0.45);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      z-index: 200;
+    }
+
+    .modal-card {
+      background: #FFFFFF;
+      width: 100%;
+      max-width: 500px;
+      max-height: 80vh;
+      border-radius: 24px;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-float);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .modal-title {
+      font-size: 20px;
+      color: var(--text-primary);
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 24px;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    .reflection-list {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 18px;
+      padding-right: 4px;
+    }
+
+    .reflection-item {
+      background: var(--bg-soft);
+      padding: 16px;
+      border-radius: 14px;
+    }
+
+    .reflection-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .reflection-text {
+      font-size: 16px;
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <!-- 상단 진행바 -->
+    <div class="top-bar" id="topBar" style="display: none;">
+      <span class="step-label" id="stepLabel">SCENARIO</span>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+    </div>
+
+    <!-- 1. 시작 화면 -->
+    <section class="screen active" id="screenIntro">
+      <div class="intro-hero">
+        <h1 class="title-display">POV: In Your DM</h1>
+        <p class="subtitle-display">장난이라는 이름의 폭력</p>
+      </div>
+
+      <div class="tutor-intro-card">
+        <div class="tutor-emoji-badge">🐰</div>
+        <div class="tutor-intro-text">
+          안녕! 나는 너의 활동을 도와줄 <strong>토선생</strong>이야.<br />
+          옆자리 짝꿍과 함께 대화 속에 숨겨진 진짜 의도를 찾아보자!
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label class="input-label" for="studentNameInput">참여자 이름</label>
+        <input
+          type="text"
+          id="studentNameInput"
+          class="text-input"
+          placeholder="이름을 입력해 주세요"
+          autocomplete="off"
+        />
+        <div class="error-msg" id="nameErrorMsg"></div>
+      </div>
+
+      <button class="btn-primary" id="startBtn">활동 시작하기</button>
+    </section>
+
+    <!-- 2. SCENARIO 도입 화면 -->
+    <section class="screen" id="screenScenario">
+      <span class="scenario-badge">SCENARIO</span>
+      <h2 class="title-display" style="font-size: 26px;">밤 10시 30분, 울리는 알림</h2>
+
+      <div class="phone-notification">
+        <div class="noti-header">
+          <span>메시지 알림</span>
+          <span>방금 전</span>
+        </div>
+        <div class="noti-body">
+          [단톡방] 민수님이 <span class="user-name-slot">학생</span>님을 내보냈습니다.<br />
+          새 개인 메시지(DM) 1건이 도착했습니다.
+        </div>
+      </div>
+
+      <p class="scenario-desc">
+        오늘 점심시간, 친하다고 믿었던 반 친구들이 <span class="user-name-slot">학생</span>님만 빼고 귓속말을 하더니 밤이 되자 단톡방에서 내보냈습니다.<br /><br />
+        심장이 쿵 내려앉은 순간, 개인 DM으로 메시지가 도착합니다. 옆자리에 앉은 짝꿍과 함께 메시지 뒤에 숨은 의도를 파악하고 <span class="user-name-slot">학생</span>님을 지켜주세요.
+      </p>
+
+      <button class="btn-primary" id="goStage1Btn">DM 확인하기</button>
+    </section>
+
+    <!-- 3. 메인 게임 (Stage 1 & Stage 2) -->
+    <section class="screen" id="screenChat">
+      <div class="chat-header">
+        <div class="chat-avatar">👤</div>
+        <div class="chat-user-info">
+          <span class="chat-username">같은 반 친구 (민수)</span>
+          <span class="chat-status" id="chatStageSubtitle">Stage 1 · 메시지 도착</span>
+        </div>
+      </div>
+
+      <div class="chat-area" id="chatArea">
+        <div class="typing-indicator" id="typingIndicator">상대방이 입력 중입니다...</div>
+      </div>
+
+      <div class="mission-box" id="missionBox" style="display: none;">
+        <div class="mission-title" id="missionTitle"></div>
+        <div class="option-list" id="optionList"></div>
+        <div class="feedback-banner" id="missionFeedback"></div>
+      </div>
+    </section>
+
+    <!-- 4. 핵심 정리 퀴즈 (5문제) -->
+    <section class="screen" id="screenQuiz">
+      <span class="quiz-badge" id="quizCounter">핵심 정리 퀴즈 1 / 5</span>
+      <div class="quiz-question" id="quizQuestion"></div>
+
+      <!-- 초성 퀴즈 영역 -->
+      <div id="quizChosungWrap" style="display: none;">
+        <div class="chosung-box" id="quizChosungDisplay"></div>
+        <input
+          type="text"
+          id="quizTextInput"
+          class="text-input"
+          placeholder="정답을 입력하세요"
+          autocomplete="off"
+        />
+        <button class="btn-primary" id="quizTextSubmitBtn" style="margin-top: 16px;">정답 확인하기</button>
+      </div>
+
+      <!-- 객관식 영역 -->
+      <div class="option-list" id="quizOptionList" style="display: none;"></div>
+
+      <!-- O/X 영역 -->
+      <div class="ox-group" id="quizOxWrap" style="display: none;">
+        <button class="ox-btn" data-ox="O">O</button>
+        <button class="ox-btn" data-ox="X">X</button>
+      </div>
+
+      <div class="feedback-banner" id="quizFeedback" style="margin-top: 16px;"></div>
+    </section>
+
+    <!-- 5. 엔딩 & 소감 작성 화면 -->
+    <section class="screen" id="screenEnding">
+      <span class="scenario-badge">COMPLETE</span>
+      <h2 class="title-display" style="font-size: 26px;">모든 미션을 완료했습니다</h2>
+
+      <div class="ending-card">
+        <p class="ending-quote">“It was never your fault, <span class="user-name-slot">학생</span>.”</p>
+        <p class="ending-sub">
+          장난이라는 말로 포장해도 상처가 된다면 분명한 폭력입니다. 혼자 고민하지 않고 짝꿍과 함께 대응한 것처럼, 우리 반의 든든한 방어자가 되어주세요.
+        </p>
+      </div>
+
+      <div class="input-group" style="margin-bottom: 12px;">
+        <label class="input-label" for="reflectionInput">오늘 활동 소감을 자유롭게 적어주세요</label>
+        <textarea
+          id="reflectionInput"
+          class="reflection-input"
+          placeholder="예: 장난처럼 던지는 말도 상대방에게는 큰 상처가 될 수 있다는 걸 느꼈어요."
+        ></textarea>
+        <div class="feedback-banner" id="reflectionFeedback"></div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-primary" id="saveReflectionBtn">활동 소감 제출하기</button>
+        <button class="btn-secondary" id="openReflectionsBtn">참여자 소감 모아보기</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- 우측 하단 토선생(🐰) 플로팅 튜터 -->
+  <div class="tutor-floating-wrap" id="tutorFloatingWrap">
+    <div class="tutor-bubble" id="tutorBubble">
+      <div class="tutor-bubble-header">🐰 토선생의 힌트</div>
+      <div id="tutorHintText">모르는 점이 있다면 토선생을 눌러서 힌트를 받아보세요!</div>
+    </div>
+    <button class="tutor-toggle-btn" id="tutorToggleBtn" title="토선생 힌트 열기/닫기">🐰</button>
+  </div>
+
+  <!-- 참여자 소감 모아보기 모달 -->
+  <div class="modal-overlay" id="reflectionModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">참여자 활동 소감 모음</h3>
+        <button class="close-btn" id="closeModalBtn">&times;</button>
+      </div>
+      <div class="reflection-list" id="reflectionListContainer"></div>
+      <button class="btn-primary" id="copyReflectionsBtn">전체 소감 복사하기</button>
+    </div>
+  </div>
+
+  <script>
+    let studentName = "";
+    let currentStepIndex = 0;
+    let currentQuizIndex = 0;
+    let isTutorBubbleVisible = true;
+
+    const chatSteps = [
+      {
+        stageLabel: "Stage 1 · 칭찬으로 위장한 조롱",
+        progress: 25,
+        isNewMessage: true,
+        enText: "OMG, {name}, did you really post that selfie? So brave of you to not care about your looks at all! 😂",
+        koText: "헐 {name}아, 너 진짜 그 셀카 올렸어? 외모에 전혀 신경 안 쓰는 게 진짜 용감하다! 😂",
+        hint: "겉으로는 'brave(용감하다)'라고 칭찬하는 것처럼 보이지만, 웃음 이모지(😂)를 붙여 은근히 우스꽝스러운 사람으로 낙인찍고 있어!",
+        missionTitle: "[짝꿍 미션 1] 가해자가 이 메시지를 보낸 진짜 의도는 무엇일까요?",
+        options: [
+          "친구의 사진 찍는 실력이 프로 작가처럼 뛰어나다고 부러워하는 것",
+          "남들의 시선을 의식하지 않는 당당한 성격을 진심으로 응원하는 것",
+          "칭찬이라는 긍정적인 단어를 방패 삼아 친구의 외모를 은근슬쩍 비하하고 조롱하려는 것"
+        ],
+        answerIndex: 2
+      },
+      {
+        stageLabel: "Stage 1 · 화용적 대항 담화 선택",
+        progress: 40,
+        isNewMessage: false,
+        hint: "주눅 들어서 사과하거나 같이 화를 내기보다, 내 모습을 긍정하면서 선을 넘지 말라고 단호하게 말하는 표현을 골라보자!",
+        missionTitle: "[짝꿍 미션 2] 가해자의 조롱 프레임을 깨뜨리는 가장 적절한 답장은?",
+        options: [
+          "I like how I look. Why are you leaving comments like that? (난 내 모습이 마음에 들어. 왜 그런 식으로 댓글을 다는 거야?)",
+          "Sorry... I'll delete it right now. (미안해... 지금 당장 사진 지울게.)",
+          "Thank you! I'm glad you like my photo. (고마워! 내 사진이 마음에 든다니 기쁘다.)"
+        ],
+        answerIndex: 0,
+        replyEn: "I like how I look. Why are you leaving comments like that?"
+      },
+      {
+        stageLabel: "Stage 2 · 장난으로 포장한 책임 전가",
+        progress: 55,
+        isNewMessage: true,
+        enText: "Chill out, {name}. Everyone knows it was just a meme. You're way too sensitive.",
+        koText: "진정해, {name}아. 다들 그냥 밈(장난)인 거 알아. 넌 너무 예민하게 굴어.",
+        hint: "가해자들이 죄책감을 피하려고 쓰는 전형적인 변명이야. '장난이었다'며 가해를 축소하고, 오히려 피해자가 예민하다고 탓을 돌리고 있어!",
+        missionTitle: "[짝꿍 미션 1] 이 메시지에서 가해자가 사용하는 심리적 전략은 무엇일까요?",
+        options: [
+          "자신의 잘못을 깊이 반성하고 피해자에게 정중하게 사과하려는 의도",
+          "자신의 괴롭힘을 '장난'으로 축소하고, 상처받은 피해자를 '예민한 사람'으로 몰아 책임을 떠넘기는 것",
+          "분위기가 무거워지는 것을 막기 위해 유머로 화제를 전환하려는 배려"
+        ],
+        answerIndex: 1
+      },
+      {
+        stageLabel: "Stage 2 · 화용적 대항 담화 선택",
+        progress: 70,
+        isNewMessage: false,
+        hint: "모두가 함께 웃을 수 있어야 진짜 농담이라는 점을 분명히 짚어주고, 선을 넘지 말라고 경고하는 답장을 선택해보자!",
+        missionTitle: "[짝꿍 미션 2] '그냥 장난이었다'는 변명을 무력화하는 최선의 대응은?",
+        options: [
+          "Haha, okay. My bad. (하하 알겠어. 내가 오해했네.)",
+          "Whatever, I don't care anymore. (됐어, 이제 신경 안 쓸래.)",
+          "A joke is only funny when everyone laughs. Stop crossing the line. (농담은 모두가 웃을 때만 재밌는 거야. 선 넘지 마.)"
+        ],
+        answerIndex: 2,
+        replyEn: "A joke is only funny when everyone laughs. Stop crossing the line."
+      }
+    ];
+
+    const quizData = [
+      {
+        type: "chosung",
+        question: "국가 수준의 학교폭력 예방 교육 프로그램으로, 온·오프라인상의 학교폭력 위험으로부터 자신과 친구들을 적극적으로 방어하는 역량을 기르는 이 프로그램의 이름은 무엇일까요?",
+        chosung: "ㅇㅇㄹ ㅍㄹㄱㄹ",
+        answers: ["어울림 프로그램", "어울림프로그램"],
+        hint: "학생들이 서로 조화롭게 어우러진다는 의미를 담은 7글자(띄어쓰기 제외 6글자) 프로그램 이름이야!"
+      },
+      {
+        type: "chosung",
+        question: "교사가 교육과정을 재구성하고 학생의 발달 단계와 학급 특성에 따라 선택하여 활용할 수 있도록 개발된 형태를 무엇이라고 할까요?",
+        chosung: "ㅁㄷ",
+        answers: ["모듈", "모듈형", "모듈 형식"],
+        hint: "필요한 부분을 블록처럼 선택해서 조립·활용할 수 있는 형태를 뜻하는 두 글자 외래어야!"
+      },
+      {
+        type: "choice",
+        question: "2020년 이후 학교에서 학교폭력 예방 교육을 실시할 때, 관련 교과 및 창의적 체험활동 시간에 연간 몇 차시 내외로 편성하여 운영해야 할까요?",
+        options: [
+          "3차시 내외",
+          "11차시 내외",
+          "25차시 내외"
+        ],
+        answerIndex: 1,
+        hint: "한 학기가 아니라 연중 꾸준히 운영할 수 있도록 '10차시'를 살짝 넘는 시수로 편성되어 있어!"
+      },
+      {
+        type: "choice",
+        question: "사이버 어울림 프로그램(온라인 8대 역량)을 지도할 때, 기존 6대 역량 외에 반드시 포함하여 지도해야 하는 추가 2대 역량은 무엇일까요?",
+        options: [
+          "자기조절, 인터넷 윤리의식",
+          "프로그래밍 능력, 정보 검색 능력",
+          "리더십, 발표 표현력"
+        ],
+        answerIndex: 0,
+        hint: "온라인 공간에서는 충동을 멈추는 힘과 디지털 시민으로서 지켜야 할 예절이 꼭 필요해!"
+      },
+      {
+        type: "ox",
+        question: "이 프로그램은 담임교사 및 교과교사 주도로 운영되며, 역할극이나 게임 등 학생 참여 중심의 다양한 방식으로 운영할 수 있다.",
+        answer: "O",
+        hint: "지금 우리가 함께 플레이한 시뮬레이션 게임처럼 다양한 참여형 방식으로 운영할 수 있어!"
+      }
+    ];
+
+    function showScreen(screenId) {
+      document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+      document.getElementById(screenId).classList.add("active");
+    }
+
+    function setTutorHint(text) {
+      document.getElementById("tutorHintText").textContent = text;
+    }
+
+    document.getElementById("tutorToggleBtn").addEventListener("click", () => {
+      const bubble = document.getElementById("tutorBubble");
+      isTutorBubbleVisible = !isTutorBubbleVisible;
+      bubble.style.display = isTutorBubbleVisible ? "block" : "none";
+    });
+
+    document.getElementById("startBtn").addEventListener("click", () => {
+      const input = document.getElementById("studentNameInput");
+      const errorEl = document.getElementById("nameErrorMsg");
+      const val = input.value.trim();
+
+      if (!val) {
+        errorEl.textContent = "이름을 입력해야 활동을 시작할 수 있습니다.";
+        input.classList.remove("shake");
+        void input.offsetWidth;
+        input.classList.add("shake");
+        input.focus();
+        return;
+      }
+
+      studentName = val;
+      errorEl.textContent = "";
+      document.querySelectorAll(".user-name-slot").forEach(el => {
+        el.textContent = studentName;
+      });
+
+      document.getElementById("topBar").style.display = "flex";
+      document.getElementById("progressFill").style.width = "12%";
+      document.getElementById("stepLabel").textContent = "SCENARIO";
+      showScreen("screenScenario");
+    });
+
+    document.getElementById("studentNameInput").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") document.getElementById("startBtn").click();
+    });
+
+    document.getElementById("goStage1Btn").addEventListener("click", () => {
+      document.getElementById("tutorFloatingWrap").style.display = "flex";
+      setTutorHint("모르는 점이 있다면 토선생을 눌러서 힌트를 받아보세요!");
+      showScreen("screenChat");
+      loadChatStep(0);
+    });
+
+    function loadChatStep(idx) {
+      currentStepIndex = idx;
+      const step = chatSteps[idx];
+      const chatArea = document.getElementById("chatArea");
+      const typing = document.getElementById("typingIndicator");
+      const missionBox = document.getElementById("missionBox");
+      const feedback = document.getElementById("missionFeedback");
+
+      document.getElementById("stepLabel").textContent = step.stageLabel.split("·")[0].trim();
+      document.getElementById("chatStageSubtitle").textContent = step.stageLabel;
+      document.getElementById("progressFill").style.width = step.progress + "%";
+      feedback.textContent = "";
+      feedback.className = "feedback-banner";
+
+      if (idx > 0) {
+        setTutorHint(step.hint);
+      } else {
+        setTutorHint("모르는 점이 있다면 토선생을 눌러서 힌트를 받아보세요! (힌트: " + step.hint + ")");
+      }
+
+      if (step.isNewMessage) {
+        missionBox.style.display = "none";
+        typing.style.display = "block";
+        chatArea.appendChild(typing);
+
+        setTimeout(() => {
+          typing.style.display = "none";
+          appendOtherMessage(step.enText.replaceAll("{name}", studentName), step.koText.replaceAll("{name}", studentName));
+          renderMission(step);
+        }, 900);
+      } else {
+        renderMission(step);
+      }
+    }
+
+    function appendOtherMessage(en, ko) {
+      const chatArea = document.getElementById("chatArea");
+      const wrapper = document.createElement("div");
+      wrapper.className = "msg-wrapper other";
+
+      const bubble = document.createElement("div");
+      bubble.className = "msg-bubble";
+      bubble.textContent = en;
+
+      const transBtn = document.createElement("button");
+      transBtn.className = "translate-btn";
+      transBtn.textContent = "한글 해석 보기";
+
+      const transDiv = document.createElement("div");
+      transDiv.className = "translated-text";
+      transDiv.textContent = ko;
+
+      transBtn.addEventListener("click", () => {
+        const isHidden = transDiv.style.display === "none" || transDiv.style.display === "";
+        transDiv.style.display = isHidden ? "block" : "none";
+        transBtn.textContent = isHidden ? "한글 해석 숨기기" : "한글 해석 보기";
+      });
+
+      wrapper.appendChild(bubble);
+      wrapper.appendChild(transBtn);
+      wrapper.appendChild(transDiv);
+      chatArea.appendChild(wrapper);
+    }
+
+    function appendMyMessage(text) {
+      const chatArea = document.getElementById("chatArea");
+      const wrapper = document.createElement("div");
+      wrapper.className = "msg-wrapper me";
+
+      const bubble = document.createElement("div");
+      bubble.className = "msg-bubble";
+      bubble.textContent = text;
+
+      wrapper.appendChild(bubble);
+      chatArea.appendChild(wrapper);
+    }
+
+    function renderMission(step) {
+      const missionBox = document.getElementById("missionBox");
+      const titleEl = document.getElementById("missionTitle");
+      const listEl = document.getElementById("optionList");
+      const feedback = document.getElementById("missionFeedback");
+
+      titleEl.textContent = step.missionTitle;
+      listEl.innerHTML = "";
+      missionBox.style.display = "block";
+
+      step.options.forEach((optText, i) => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.textContent = `${i + 1}. ${optText}`;
+
+        btn.addEventListener("click", () => {
+          if (i === step.answerIndex) {
+            btn.classList.add("correct");
+            feedback.className = "feedback-banner success";
+            feedback.textContent = "정확합니다! 다음 단계로 이동합니다.";
+
+            listEl.querySelectorAll(".option-btn").forEach(b => b.disabled = true);
+
+            if (step.replyEn) {
+              appendMyMessage(step.replyEn);
+            }
+
+            setTimeout(() => {
+              if (currentStepIndex + 1 < chatSteps.length) {
+                loadChatStep(currentStepIndex + 1);
+              } else {
+                startQuizPhase();
+              }
+            }, 950);
+          } else {
+            btn.classList.add("wrong");
+            btn.classList.remove("shake");
+            void btn.offsetWidth;
+            btn.classList.add("shake");
+            feedback.className = "feedback-banner";
+            feedback.textContent = "다시 한 번 생각해 볼까요? 우측 하단 토선생의 힌트를 참고해 보세요!";
+          }
+        });
+
+        listEl.appendChild(btn);
+      });
+    }
+
+    function startQuizPhase() {
+      showScreen("screenQuiz");
+      loadQuiz(0);
+    }
+
+    function loadQuiz(idx) {
+      currentQuizIndex = idx;
+      const q = quizData[idx];
+      const progress = 75 + (idx * 5);
+
+      document.getElementById("stepLabel").textContent = `QUIZ ${idx + 1}/5`;
+      document.getElementById("progressFill").style.width = progress + "%";
+      document.getElementById("quizCounter").textContent = `핵심 정리 퀴즈 ${idx + 1} / 5`;
+      document.getElementById("quizQuestion").textContent = q.question;
+
+      const feedback = document.getElementById("quizFeedback");
+      feedback.textContent = "";
+      feedback.className = "feedback-banner";
+
+      setTutorHint(q.hint);
+
+      const chosungWrap = document.getElementById("quizChosungWrap");
+      const optionList = document.getElementById("quizOptionList");
+      const oxWrap = document.getElementById("quizOxWrap");
+
+      chosungWrap.style.display = "none";
+      optionList.style.display = "none";
+      oxWrap.style.display = "none";
+
+      if (q.type === "chosung") {
+        chosungWrap.style.display = "block";
+        document.getElementById("quizChosungDisplay").textContent = q.chosung;
+        const input = document.getElementById("quizTextInput");
+        input.value = "";
+        input.focus();
+      } else if (q.type === "choice") {
+        optionList.style.display = "flex";
+        optionList.innerHTML = "";
+        q.options.forEach((opt, i) => {
+          const btn = document.createElement("button");
+          btn.className = "option-btn";
+          btn.textContent = `${i + 1}. ${opt}`;
+          btn.addEventListener("click", () => {
+            if (i === q.answerIndex) {
+              btn.classList.add("correct");
+              optionList.querySelectorAll("button").forEach(b => b.disabled = true);
+              handleQuizSuccess();
+            } else {
+              btn.classList.add("wrong");
+              btn.classList.remove("shake");
+              void btn.offsetWidth;
+              btn.classList.add("shake");
+              feedback.textContent = "오답입니다! 정답을 선택해야 다음 문제로 넘어갈 수 있어요.";
+            }
+          });
+          optionList.appendChild(btn);
+        });
+      } else if (q.type === "ox") {
+        oxWrap.style.display = "grid";
+        oxWrap.querySelectorAll(".ox-btn").forEach(btn => {
+          btn.className = "ox-btn";
+          btn.disabled = false;
+          btn.onclick = () => {
+            if (btn.dataset.ox === q.answer) {
+              btn.style.borderColor = "var(--success)";
+              btn.style.background = "#F2FBF6";
+              btn.style.color = "var(--success)";
+              oxWrap.querySelectorAll("button").forEach(b => b.disabled = true);
+              handleQuizSuccess();
+            } else {
+              btn.style.borderColor = "var(--danger)";
+              btn.style.background = "#FFF5F6";
+              btn.style.color = "var(--danger)";
+              btn.classList.remove("shake");
+              void btn.offsetWidth;
+              btn.classList.add("shake");
+              feedback.textContent = "오답입니다! 다시 선택해 주세요.";
+            }
+          };
+        });
+      }
+    }
+
+    document.getElementById("quizTextSubmitBtn").addEventListener("click", () => {
+      const q = quizData[currentQuizIndex];
+      const input = document.getElementById("quizTextInput");
+      const feedback = document.getElementById("quizFeedback");
+      const userAns = input.value.trim().replace(/\s+/g, "").toLowerCase();
+      const validAnswers = q.answers.map(a => a.replace(/\s+/g, "").toLowerCase());
+
+      if (validAnswers.includes(userAns)) {
+        input.disabled = true;
+        document.getElementById("quizTextSubmitBtn").disabled = true;
+        handleQuizSuccess();
+      } else {
+        input.classList.remove("shake");
+        void input.offsetWidth;
+        input.classList.add("shake");
+        feedback.textContent = "정답이 아닙니다! 초성과 토선생 힌트를 보고 다시 입력해 주세요.";
+      }
+    });
+
+    document.getElementById("quizTextInput").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") document.getElementById("quizTextSubmitBtn").click();
+    });
+
+    function handleQuizSuccess() {
+      const feedback = document.getElementById("quizFeedback");
+      feedback.className = "feedback-banner success";
+      feedback.textContent = "정답입니다! 훌륭해요.";
+
+      setTimeout(() => {
+        if (currentQuizIndex + 1 < quizData.length) {
+          document.getElementById("quizTextInput").disabled = false;
+          document.getElementById("quizTextSubmitBtn").disabled = false;
+          loadQuiz(currentQuizIndex + 1);
+        } else {
+          finishActivity();
+        }
+      }, 850);
+    }
+
+    function finishActivity() {
+      document.getElementById("stepLabel").textContent = "COMPLETE";
+      document.getElementById("progressFill").style.width = "100%";
+      document.getElementById("tutorFloatingWrap").style.display = "none";
+      showScreen("screenEnding");
+    }
+
+    const STORAGE_KEY = "pov_in_your_dm_reflections";
+
+    function getReflections() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      } catch {
+        return [];
+      }
+    }
+
+    document.getElementById("saveReflectionBtn").addEventListener("click", () => {
+      const textarea = document.getElementById("reflectionInput");
+      const feedback = document.getElementById("reflectionFeedback");
+      const text = textarea.value.trim();
+
+      if (!text) {
+        feedback.className = "feedback-banner";
+        feedback.textContent = "소감을 한 줄 이상 작성해 주세요.";
+        textarea.focus();
+        return;
+      }
+
+      const list = getReflections();
+      const now = new Date();
+      const timeStr = `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
+
+      list.unshift({
+        name: studentName,
+        text: text,
+        time: timeStr
+      });
+
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+      textarea.value = "";
+      feedback.className = "feedback-banner success";
+      feedback.textContent = "소감이 성공적으로 저장되었습니다! 아래 버튼에서 확인할 수 있어요.";
+    });
+
+    document.getElementById("openReflectionsBtn").addEventListener("click", () => {
+      const container = document.getElementById("reflectionListContainer");
+      const list = getReflections();
+      container.innerHTML = "";
+
+      if (list.length === 0) {
+        container.innerHTML = `<p style="color: var(--text-muted); text-align: center; padding: 30px 0;">아직 등록된 소감이 없습니다.</p>`;
+      } else {
+        list.forEach(item => {
+          const div = document.createElement("div");
+          div.className = "reflection-item";
+          div.innerHTML = `
+            <div class="reflection-meta">
+              <span>${item.name}</span>
+              <span>${item.time}</span>
+            </div>
+            <div class="reflection-text">${item.text}</div>
+          `;
+          container.appendChild(div);
+        });
+      }
+
+      document.getElementById("reflectionModal").style.display = "flex";
+    });
+
+    document.getElementById("closeModalBtn").addEventListener("click", () => {
+      document.getElementById("reflectionModal").style.display = "none";
+    });
+
+    document.getElementById("copyReflectionsBtn").addEventListener("click", () => {
+      const list = getReflections();
+      if (list.length === 0) return;
+
+      const formatted = list.map((item, idx) => `${idx + 1}. [${item.name}] ${item.text}`).join("
+");
+      navigator.clipboard.writeText(formatted).then(() => {
+        const btn = document.getElementById("copyReflectionsBtn");
+        btn.textContent = "클립보드에 복사 완료!";
+        setTimeout(() => {
+          btn.textContent = "전체 소감 복사하기";
+        }, 1800);
+      });
+    });
+  </script>
+</body>
+</html>
